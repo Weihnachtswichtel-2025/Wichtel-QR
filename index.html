@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wichtel-Spiel</title>
+<style>
+body { font-family: Arial; text-align: center; background:#111; color:#fff; }
+img { max-width: 90%; border-radius: 10px; margin-top: 20px; }
+a { color: #0f0; font-size: 18px; display: block; margin: 20px; }
+</style>
+</head>
+<body>
+
+<h2 id="title"></h2>
+<img id="img">
+<p id="text"></p>
+
+<script>
+const step = Number(new URLSearchParams(window.location.search).get("s"));
+let progress = Number(localStorage.getItem("progress")) || 0;
+
+if (step !== progress + 1) {
+  localStorage.setItem("progress", 0);
+  document.getElementById("title").innerText = "❌ Falsche Reihenfolge";
+  document.getElementById("text").innerText = "Bitte wieder bei QR-Code 1 beginnen.";
+} else {
+  localStorage.setItem("progress", step);
+  document.getElementById("img").src = `step${step}.jpg`;
+
+  if (step < 6) {
+    document.getElementById("title").innerText = "✅ Richtig!";
+    document.getElementById("text").innerHTML =
+      "Das Bild wird klarer…<br><a href='?s=" + (step+1) + "'>Weiter</a>";
+  } else {
+    document.getElementById("title").innerText = "🎄 Der Wichtel ist enttarnt!";
+    document.getElementById("text").innerText =
+      "Eine Person trägt die Wichtelmütze 😄";
+  }
+}
+</script>
+
+</body>
+</html>
