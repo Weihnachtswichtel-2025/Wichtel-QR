@@ -2,102 +2,55 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Wichtel-Spiel</title>
 
 <style>
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #111;
-  color: #fff;
-  margin: 0;
-  padding: 16px;
-  text-align: center;
+  font-family: system-ui, sans-serif;
+  background:#111;
+  color:#fff;
+  text-align:center;
+  padding:16px;
 }
-
-h2 {
-  font-size: 1.5rem;
-  margin-top: 10px;
-}
-
-p {
-  font-size: 1.1rem;
-  line-height: 1.4;
-  margin-top: 12px;
-}
-
 img {
-  width: 100%;
-  max-width: 420px;
-  height: auto;
-  border-radius: 12px;
-  margin: 20px auto;
-  display: block;
+  max-width:420px;
+  width:100%;
+  border-radius:12px;
+  margin:20px auto;
 }
+p { font-size:1.1rem; }
 </style>
 </head>
 
 <body>
 
 <h2 id="title"></h2>
-<img id="img" alt="">
+<img id="img">
 <p id="text"></p>
 
 <script>
-/* ==========================
-   KONFIGURATION
-========================== */
-const MAX_TIME = 5 * 60 * 1000; // 5 Minuten
+const step = Number(new URLSearchParams(location.search).get("s"));
+const ok   = Number(new URLSearchParams(location.search).get("ok")) || 0;
 
-const storyTexts = {
-  1: "📜 Die Legende beginnt… Ein Wichtel hat sich unauffällig unter euch gemischt. Noch ist seine Tarnung perfekt.\n\n📱 Tipp: Bitte im selben Browser-Tab bleiben.",
-  2: "🔦 Erste Umrisse tauchen auf. Der Wichtel beobachtet euch – und bleibt ganz ruhig.",
-  3: "🧠 Die Tarnung beginnt zu bröckeln. Einige Gesichter wirken plötzlich… verdächtig.",
-  4: "👁️ Ihr seid nah dran. Sehr nah. Der Wichtel wird nervös.",
-  5: "⚠️ Letzte Chance zur Flucht. Niemand hat sie genutzt.",
-  6: "🎅 Der Wichtel ist entlarvt! Die Mütze lügt nicht."
+const texts = {
+  1: "📜 Die Legende beginnt…",
+  2: "🔦 Erste Umrisse tauchen auf.",
+  3: "🧠 Die Tarnung beginnt zu bröckeln.",
+  4: "👁️ Ihr seid nah dran.",
+  5: "⚠️ Letzte Chance zur Flucht.",
+  6: "🎅 Der Wichtel ist entlarvt!"
 };
 
-/* ==========================
-   LOGIK
-========================== */
-const params = new URLSearchParams(window.location.search);
-const step = Number(params.get("s"));
-
-// URL im selben Tab „ersetzen“ → reduziert Tab-Chaos
-if (step && window.history.replaceState) {
-  window.history.replaceState({}, "", "?s=" + step);
-}
-
-const now = Date.now();
-let progress = Number(localStorage.getItem("progress")) || 0;
-let lastTime = Number(localStorage.getItem("lastTime")) || 0;
-
-// ⏱️ Reset nach Zeit
-if (now - lastTime > MAX_TIME) {
-  progress = 0;
-  localStorage.setItem("progress", 0);
-}
-
-// ❌ falsche Reihenfolge
-if (step !== progress + 1) {
-  localStorage.setItem("progress", 0);
-  localStorage.setItem("lastTime", now);
-
-  document.getElementById("title").innerText = "❌ Spur verloren";
+if (step !== ok + 1) {
+  document.getElementById("title").innerText = "❌ Falsche Reihenfolge";
   document.getElementById("text").innerText =
-    "Die Fährte ist kalt.\nBitte wieder bei QR-Code 1 beginnen.";
-} 
-// ✅ richtiger Schritt
-else {
-  localStorage.setItem("progress", step);
-  localStorage.setItem("lastTime", now);
-
+    "Bitte wieder bei QR-Code 1 beginnen.";
+} else {
   document.getElementById("img").src = `step${step}.jpg`;
-  document.getElementById("text").innerText = storyTexts[step];
-
   document.getElementById("title").innerText =
     step < 6 ? "🧩 Spur gefunden" : "🎄 Finale";
+  document.getElementById("text").innerText = texts[step];
 }
 </script>
 
