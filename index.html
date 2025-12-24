@@ -44,10 +44,13 @@ img {
 <p id="text"></p>
 
 <script>
+/* ==========================
+   KONFIGURATION
+========================== */
 const MAX_TIME = 5 * 60 * 1000; // 5 Minuten
 
 const storyTexts = {
-  1: "📜 Die Legende beginnt… Ein Wichtel hat sich unauffällig unter euch gemischt. Noch ist seine Tarnung perfekt.",
+  1: "📜 Die Legende beginnt… Ein Wichtel hat sich unauffällig unter euch gemischt. Noch ist seine Tarnung perfekt.\n\n📱 Tipp: Bitte im selben Browser-Tab bleiben.",
   2: "🔦 Erste Umrisse tauchen auf. Der Wichtel beobachtet euch – und bleibt ganz ruhig.",
   3: "🧠 Die Tarnung beginnt zu bröckeln. Einige Gesichter wirken plötzlich… verdächtig.",
   4: "👁️ Ihr seid nah dran. Sehr nah. Der Wichtel wird nervös.",
@@ -55,29 +58,37 @@ const storyTexts = {
   6: "🎅 Der Wichtel ist entlarvt! Die Mütze lügt nicht."
 };
 
+/* ==========================
+   LOGIK
+========================== */
 const params = new URLSearchParams(window.location.search);
 const step = Number(params.get("s"));
+
+// URL im selben Tab „ersetzen“ → reduziert Tab-Chaos
+if (step && window.history.replaceState) {
+  window.history.replaceState({}, "", "?s=" + step);
+}
 
 const now = Date.now();
 let progress = Number(localStorage.getItem("progress")) || 0;
 let lastTime = Number(localStorage.getItem("lastTime")) || 0;
 
-// ⏱️ Automatischer Reset nach 5 Minuten Inaktivität
+// ⏱️ Reset nach Zeit
 if (now - lastTime > MAX_TIME) {
   progress = 0;
   localStorage.setItem("progress", 0);
 }
 
-// ❌ Falsche Reihenfolge
+// ❌ falsche Reihenfolge
 if (step !== progress + 1) {
   localStorage.setItem("progress", 0);
   localStorage.setItem("lastTime", now);
 
   document.getElementById("title").innerText = "❌ Spur verloren";
   document.getElementById("text").innerText =
-    "Die Fährte ist kalt. Bitte wieder bei QR-Code 1 beginnen.";
+    "Die Fährte ist kalt.\nBitte wieder bei QR-Code 1 beginnen.";
 } 
-// ✅ Richtiger Schritt
+// ✅ richtiger Schritt
 else {
   localStorage.setItem("progress", step);
   localStorage.setItem("lastTime", now);
@@ -85,11 +96,8 @@ else {
   document.getElementById("img").src = `step${step}.jpg`;
   document.getElementById("text").innerText = storyTexts[step];
 
-  if (step < 6) {
-    document.getElementById("title").innerText = "🧩 Spur gefunden";
-  } else {
-    document.getElementById("title").innerText = "🎄 Finale";
-  }
+  document.getElementById("title").innerText =
+    step < 6 ? "🧩 Spur gefunden" : "🎄 Finale";
 }
 </script>
 
